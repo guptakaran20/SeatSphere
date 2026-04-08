@@ -1,14 +1,94 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
-  url      = env("DATABASE_URL")  
   provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  CLUB
+  ADMIN
+}
+
+enum EventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  BOOKED
+  USED
+  CANCELLED
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  password        String?
+  phoneNumber     String?  @unique
+  role            Role     @default(STUDENT)
+  isEmailVerified Boolean  @default(false)
+  isPhoneVerified Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  events   Event[]   @relation("ClubEvents")
+  bookings Booking[]
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime    @db.Date
+  startTime   DateTime    @db.Time
+  endTime     DateTime    @db.Time
+  status      EventStatus @default(PENDING)
+  clubId      String
+  createdAt   DateTime    @default(now())
+
+  club     User      @relation("ClubEvents", fields: [clubId], references: [id])
+  bookings Booking[]
+}
+
+model Seat {
+  id         String       @id @default(uuid())
+  seatNumber Int
+  row        String
+
+  bookings Booking[]
+
+  @@unique([seatNumber, row])
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  userId    String
+  eventId   String
+  seatId    String
+  status    BookingStatus @default(BOOKED)
+  qrCode    String        @unique @default(uuid())
+  createdAt DateTime      @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+  seat  Seat  @relation(fields: [seatId], references: [id])
+
+  @@unique([eventId, seatId])
+}
+
+model OTPVerification {
+  id         String   @id @default(uuid())
+  identifier String // email or phone
+  otp        String
+  expiresAt  DateTime
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
