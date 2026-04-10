@@ -1,0 +1,54 @@
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import { withAuth, apiResponse } from "@/lib/api-utils";
+
+const CreateEventSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
+  date: z.string(), // YYYY-MM-DD
+  startTime: z.string(), // ISO String or YYYY-MM-DDTHH:mm:ssZ
+  endTime: z.string(),
+});
+
+export const POST = withAuth(["CLUB"], async (req, session, reqId) => {
+  const body = await req.json();
+  const parsed = CreateEventSchema.safeParse(body);
+  if (!parsed.success) return apiResponse(false, "Validation Error", parsed.error.message, 400, reqId);
+
+  const data = parsed.data;
+
+  try {
+    const event = await prisma.event.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        date: new Date(data.date),
+        startTime: new Date(data.startTime),
+        endTime: new Date(data.endTime),
+        clubId: session.user.id,
+        status: "PENDING"
+      }
+    });
+    return apiResponse(true, "Event created", event, 201, reqId);
+  } catch (error: any) {
+    return apiResponse(false, "Internal Server Error", error.message, 500, reqId);
+  }
+});
+
+export const GET = withAuth(["STUDENT", "CLUB", "ADMIN", "VALIDATOR"], async (req, session, reqId) => {
+  const role = session.user.role;
+  let events;
+  
+  try {
+    if (role === "ADMIN" || role === "VALIDATOR") {
+      events = await prisma.event.findMany({ orderBy: { createdAt: 'desc' } });
+    } else if (role === "CLUB") {
+      events = await prisma.event.findMany({ where: { clubId: session.user.id }, orderBy: { createdAt: 'desc' } });
+    } else {
+      events = await prisma.event.findMany({ where: { status: "APPROVED" }, orderBy: { startTime: 'asc' } });
+    }
+    return apiResponse(true, "Events fetched", events, 200, reqId);
+  } catch (error: any) {
+    return apiResponse(false, "Internal Server Error", error.message, 500, reqId);
+  }
+});

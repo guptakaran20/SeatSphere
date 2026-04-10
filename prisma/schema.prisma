@@ -5,7 +5,10 @@ generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
 }
-
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.svg"
+}
 datasource db {
   provider = "postgresql"
 }
@@ -14,6 +17,12 @@ enum Role {
   STUDENT
   CLUB
   ADMIN
+  VALIDATOR
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
 }
 
 enum EventStatus {
@@ -29,18 +38,25 @@ enum BookingStatus {
 }
 
 model User {
-  id              String   @id @default(uuid())
-  name            String
-  email           String   @unique
-  password        String?
-  phoneNumber     String?  @unique
-  role            Role     @default(STUDENT)
-  isEmailVerified Boolean  @default(false)
-  isPhoneVerified Boolean  @default(false)
-  createdAt       DateTime @default(now())
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  password          String?
+  phoneNumber       String   @unique
+  role              Role     @default(STUDENT)
+  isEmailVerified   Boolean  @default(false)
+  isPhoneVerified   Boolean  @default(false)
+  authProvider      AuthProvider @default(CREDENTIALS)
+  providerAccountId String?
+  createdAt         DateTime @default(now())
 
-  events   Event[]   @relation("ClubEvents")
-  bookings Booking[]
+  events           Event[]           @relation("ClubEvents")
+  approvedEvents   Event[]           @relation("approvedByUser")
+  bookings         Booking[]
+  accounts         Account[]
+  sessions         Session[]
+  seatLocks        SeatLock[]
+  otpVerifications OTPVerification[]
 }
 
 model Event {
@@ -52,10 +68,15 @@ model Event {
   endTime     DateTime    @db.Time
   status      EventStatus @default(PENDING)
   clubId      String
+  approvedBy  String?
   createdAt   DateTime    @default(now())
 
-  club     User      @relation("ClubEvents", fields: [clubId], references: [id])
-  bookings Booking[]
+  club           User       @relation("ClubEvents", fields: [clubId], references: [id])
+  approvedByUser User?      @relation("approvedByUser", fields: [approvedBy], references: [id])
+  bookings       Booking[]
+  seatLocks      SeatLock[]
+
+  @@index([date, startTime, endTime])
 }
 
 model Seat {
@@ -63,7 +84,8 @@ model Seat {
   seatNumber Int
   row        String
 
-  bookings Booking[]
+  bookings  Booking[]
+  seatLocks SeatLock[]
 
   @@unique([seatNumber, row])
 }
@@ -76,19 +98,80 @@ model Booking {
   status    BookingStatus @default(BOOKED)
   qrCode    String        @unique @default(uuid())
   createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  usedAt    DateTime?
 
-  user  User  @relation(fields: [userId], references: [id])
-  event Event @relation(fields: [eventId], references: [id])
-  seat  Seat  @relation(fields: [seatId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Restrict)
+  seat  Seat  @relation(fields: [seatId], references: [id], onDelete: Restrict)
 
   @@unique([eventId, seatId])
+  @@index([eventId])
+  @@index([userId])
+}
+enum OTPType {
+  EMAIL
+  PHONE
 }
 
 model OTPVerification {
   id         String   @id @default(uuid())
-  identifier String // email or phone
+  userId     String
+  type       OTPType
   otp        String
   expiresAt  DateTime
   verified   Boolean  @default(false)
   createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model SeatLock {
+  id        String   @id @default(cuid())
+  seatId    String
+  eventId   String
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  seat      Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([seatId, eventId])
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }

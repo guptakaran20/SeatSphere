@@ -1,0 +1,37 @@
+import { z } from "zod";
+import { prisma } from "@/lib/prisma";
+import { apiResponse, applyRateLimit } from "@/lib/api-utils";
+
+const SendOtpSchema = z.object({
+  identifier: z.string(),
+  type: z.enum(["EMAIL", "PHONE"])
+});
+
+export async function POST(req: Request) {
+  const reqId = crypto.randomUUID();
+  try {
+    const body = await req.json();
+    const parsed = SendOtpSchema.safeParse(body);
+    if (!parsed.success) return apiResponse(false, "Validation Error", parsed.error.message, 400, reqId);
+
+    const { identifier, type } = parsed.data;
+
+    if (!applyRateLimit(`otp-${identifier}`, 3, 15 * 60 * 1000)) {
+      return apiResponse(false, "Rate limit exceeded. Try again in 15 minutes.", null, 429, reqId);
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+    await prisma.oTPVerification.create({
+      data: { identifier, type, otp, expiresAt }
+    });
+
+    // TODO: Integrate actual Email/SMS service here
+    console.log(`[DEV ONLY] OTP for ${identifier} is ${otp}`);
+
+    return apiResponse(true, "OTP sent successfully", null, 200, reqId);
+  } catch (error: any) {
+    return apiResponse(false, "Internal Server Error", error.message, 500, reqId);
+  }
+}
