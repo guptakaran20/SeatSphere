@@ -2,11 +2,17 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { apiResponse } from "@/lib/api-utils";
+import {
+  cleanupExpiredUnverifiedUsers,
+  cleanupExpiredUnverifiedUsersByIdentifiers,
+} from "@/lib/user-cleanup";
 
 const SignupSchema = z.object({
   name: z.string(),
   email: z.string().email(),
-  phoneNumber: z.string().min(10),
+  phoneNumber: z
+  .string()
+  .regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   password: z.string().min(6),
 });
 
@@ -18,6 +24,11 @@ export async function POST(req: Request) {
     if (!parsed.success) return apiResponse(false, "Validation Error", parsed.error.message, 400, reqId);
 
     const { name, email, phoneNumber, password } = parsed.data;
+
+    await cleanupExpiredUnverifiedUsersByIdentifiers({ email, phoneNumber });
+    cleanupExpiredUnverifiedUsers().catch((error) => {
+      console.error("UNVERIFIED USER CLEANUP ERROR:", error);
+    });
 
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ email }, { phoneNumber }] }

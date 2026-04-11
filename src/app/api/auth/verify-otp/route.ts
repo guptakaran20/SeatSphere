@@ -2,6 +2,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { apiResponse } from "@/lib/api-utils";
+import { cleanupExpiredUnverifiedUsers } from "@/lib/user-cleanup";
 
 const VerifyOtpSchema = z.object({
   identifier: z.string(),
@@ -27,6 +28,10 @@ export async function POST(req: Request) {
     }
 
     const { identifier, otp, type } = parsed.data;
+
+    cleanupExpiredUnverifiedUsers().catch((error) => {
+      console.error("UNVERIFIED USER CLEANUP ERROR:", error);
+    });
 
     // ✅ 2. Find user
     const user = await prisma.user.findFirst({
