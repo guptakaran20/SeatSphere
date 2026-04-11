@@ -1,4 +1,5 @@
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { apiResponse, applyRateLimit } from "@/lib/api-utils";
 import { Prisma } from "@prisma/client";
@@ -30,25 +31,28 @@ export async function POST(req: Request) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
 
+    // Hash OTP before storing
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
     const otpRecord = await prisma.otpVerification.upsert({
-  where: {
-    userId_type: {
-      userId: existingUser.id,
-      type,
-    },
-  },
-  update: {
-    otp,
-    expiresAt,
-    verified: false,
-  },
-  create: {
-    userId: existingUser.id,
-    type,
-    otp,
-    expiresAt,
-  },
-});
+      where: {
+        userId_type: {
+          userId: existingUser.id,
+          type,
+        },
+      },
+      update: {
+        otp: hashedOtp,
+        expiresAt,
+        verified: false,
+      },
+      create: {
+        userId: existingUser.id,
+        type,
+        otp: hashedOtp,
+        expiresAt,
+      },
+    });
 
     // TODO: Integrate actual Email/SMS service here
     console.log(`[DEV ONLY] OTP for ${identifier} is ${otp}`);

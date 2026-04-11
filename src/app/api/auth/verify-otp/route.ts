@@ -1,4 +1,5 @@
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { apiResponse } from "@/lib/api-utils";
 
@@ -64,8 +65,9 @@ export async function POST(req: Request) {
       return apiResponse(false, "OTP expired", null, 410, reqId);
     }
 
-    // ✅ 6. Constant-time OTP check (basic safe compare)
-    if (otpRecord.otp !== otp) {
+    // ✅ 6. Secure OTP check using bcrypt
+    const isValidOtp = await bcrypt.compare(otp, otpRecord.otp);
+    if (!isValidOtp) {
       return apiResponse(false, "Invalid OTP", null, 400, reqId);
     }
 
