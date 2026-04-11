@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,6 +16,9 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           role: "STUDENT", 
+          isPhoneVerified: false,
+          isEmailVerified: true,
+          authProvider: "GOOGLE",
         };
       }
     }),
@@ -28,6 +32,8 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
         const user = await prisma.user.findUnique({ where: { email: credentials.email } });
         if (!user || !user.password) return null;
+        
+        if (!user.isEmailVerified || !user.isPhoneVerified) return null;
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
@@ -37,21 +43,18 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = (user as any).role;
-        token.id = user.id;
-      }
-      return token;
-    },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
-        (session.user as any).id = token.id;
+        session.user.role = token.role;
+        session.user.id = token.id;
       }
       return session;
     }
   },
-  session: { strategy: "jwt" },
-  pages: { signIn: '/login' }
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "database", // optional (default when adapter exists)
+  },
+  pages: { signIn: '/login' },
+  secret: process.env.NEXTAUTH_SECRET
 };

@@ -40,13 +40,29 @@ export const GET = withAuth(["STUDENT", "CLUB", "ADMIN", "VALIDATOR"], async (re
   let events;
   
   try {
+    let rawEvents;
     if (role === "ADMIN" || role === "VALIDATOR") {
-      events = await prisma.event.findMany({ orderBy: { createdAt: 'desc' } });
+      rawEvents = await prisma.event.findMany({ orderBy: { createdAt: 'desc' } });
     } else if (role === "CLUB") {
-      events = await prisma.event.findMany({ where: { clubId: session.user.id }, orderBy: { createdAt: 'desc' } });
+      rawEvents = await prisma.event.findMany({ where: { clubId: session.user.id }, orderBy: { createdAt: 'desc' } });
     } else {
-      events = await prisma.event.findMany({ where: { status: "APPROVED" }, orderBy: { startTime: 'asc' } });
+      rawEvents = await prisma.event.findMany({ where: { status: "APPROVED" }, orderBy: { startTime: 'asc' } });
     }
+
+    const totalSeats = await prisma.seat.count();
+
+    const events = await Promise.all(
+      rawEvents.map(async (event: any) => {
+        const booked = await prisma.booking.count({
+          where: { eventId: event.id, status: { in: ["BOOKED", "USED"] } }
+        });
+        const locked = await prisma.seatLock.count({
+          where: { eventId: event.id, expiresAt: { gt: new Date() } }
+        });
+        return { ...event, availableSeats: totalSeats - booked - locked };
+      })
+    );
+
     return apiResponse(true, "Events fetched", events, 200, reqId);
   } catch (error: any) {
     return apiResponse(false, "Internal Server Error", error.message, 500, reqId);

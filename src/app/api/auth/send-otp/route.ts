@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiResponse, applyRateLimit } from "@/lib/api-utils";
+import { Prisma } from "@prisma/client";
 
 const SendOtpSchema = z.object({
   identifier: z.string(),
@@ -20,12 +21,34 @@ export async function POST(req: Request) {
       return apiResponse(false, "Rate limit exceeded. Try again in 15 minutes.", null, 429, reqId);
     }
 
+    const existingUser = await prisma.user.findFirst({
+      where: type === "EMAIL" ? { email: identifier } : { phoneNumber: identifier }
+    });
+
+    if (!existingUser) return apiResponse(false, "Not Found", "User not found", 404, reqId);
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
 
-    await prisma.oTPVerification.create({
-      data: { identifier, type, otp, expiresAt }
-    });
+    const otpRecord = await prisma.otpVerification.upsert({
+  where: {
+    userId_type: {
+      userId: existingUser.id,
+      type,
+    },
+  },
+  update: {
+    otp,
+    expiresAt,
+    verified: false,
+  },
+  create: {
+    userId: existingUser.id,
+    type,
+    otp,
+    expiresAt,
+  },
+});
 
     // TODO: Integrate actual Email/SMS service here
     console.log(`[DEV ONLY] OTP for ${identifier} is ${otp}`);

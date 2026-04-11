@@ -8,7 +8,7 @@ export const PATCH = withAuth(["ADMIN"], async (req, session, reqId) => {
   try {
     const event = await prisma.event.update({
       where: { id },
-      data: { status: "REJECTED" }
+      data: { status: "REJECTED", approvedBy: session.user.id }
     });
     return apiResponse(true, "Event rejected", event, 200, reqId);
   } catch (error: any) {

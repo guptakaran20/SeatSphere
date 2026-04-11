@@ -17,12 +17,12 @@ const handler = async (req: Request, session: any, reqId: string) => {
     if (!booking) return apiResponse(false, "Not Found", "Invalid QR code", 404, reqId);
     if (!booking.event) return apiResponse(false, "Error", "Event not found", 404, reqId);
     
-    if (booking.status === "USED") return apiResponse(false, "Forbidden", "Ticket already used", 403, reqId);
+    if (booking.status === "USED") return apiResponse(false, "Conflict", "Ticket already used", 409, reqId);
     if (booking.status === "CANCELLED") return apiResponse(false, "Forbidden", "Booking is cancelled", 400, reqId);
 
     const updated = await prisma.booking.update({
       where: { id: booking.id },
-      data: { status: "USED" },
+      data: { status: "USED", usedAt: new Date() },
       include: { user: { select: { name: true, email: true } } }
     });
 
@@ -32,4 +32,4 @@ const handler = async (req: Request, session: any, reqId: string) => {
   }
 }
 
-export const POST = withAuth(["ADMIN", "VALIDATOR"], handler);
+export const POST = withAuth(["VALIDATOR"], handler);

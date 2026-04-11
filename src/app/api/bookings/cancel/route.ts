@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { withAuth, apiResponse } from "@/lib/api-utils";
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "@prisma/client";
 
 const CancelSchema = z.object({ bookingId: z.string().uuid() });
 

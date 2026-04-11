@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { withAuth, apiResponse } from "@/lib/api-utils";
-import { Prisma } from "@/generated/prisma/browser";
+import { Prisma } from "@prisma/client";
 
 const BookingSchema = z.object({
   eventId: z.string().uuid(),
@@ -19,6 +19,15 @@ const handler = async (req: Request, session: any, reqId: string) => {
   const userId = session.user.id;
 
   try {
+    // Check if active lock exists for another user
+    const existingLock = await prisma.seatLock.findUnique({
+      where: { seatId_eventId: { seatId, eventId } }
+    });
+
+    if (existingLock && existingLock.userId !== userId && existingLock.expiresAt > new Date()) {
+      return apiResponse(false, "Conflict", "Seat is temporarily locked", 409, reqId);
+    }
+
     const booking = await prisma.$transaction(async (tx : Prisma.TransactionClient) => {
       // 1. Validate Event
       const event = await tx.event.findUnique({ where: { id: eventId } });
@@ -37,9 +46,18 @@ const handler = async (req: Request, session: any, reqId: string) => {
       if (userBookings >= MAX_SEATS_PER_USER_EVENT) throw new Error("MAX_LIMIT_REACHED");
 
       // 4. Create (Atomicity ensures @@unique([eventId, seatId]) prevents double-booking)
-      return await tx.booking.create({
+      const newBooking = await tx.booking.create({
         data: { userId, eventId, seatId, status: "BOOKED" }
       });
+
+      // 5. Clean up lock
+      if (existingLock && existingLock.userId === userId) {
+        await tx.seatLock.delete({
+          where: { id: existingLock.id }
+        });
+      }
+
+      return newBooking;
     });
 
     return apiResponse(true, "Booking successful", booking, 201, reqId);
