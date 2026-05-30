@@ -91,23 +91,24 @@ export default function ContactPage() {
   return (
     <div className="relative min-h-screen bg-black overflow-hidden flex flex-col">
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0 h-[85vh] w-full overflow-hidden select-none pointer-events-none">
+      <div className="absolute inset-0 z-0 h-[100vh] w-full overflow-hidden select-none pointer-events-none">
         <Image
           src="/bg-auditorium.png"
           alt="Auditorium Background"
           fill
           priority
-          className="object-cover object-center opacity-30 sm:opacity-75"
+          className="object-cover object-center opacity-30 sm:opacity-85"
         />
+        {/* Soft mobile-optimized gradient overlay that transitions to a simple overlay on desktop */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/85 to-black sm:hidden"></div>
-        <div className="absolute inset-0 bg-black/55 hidden sm:block"></div>
+        <div className="absolute inset-0 bg-black/50 hidden sm:block"></div>
       </div>
 
       <main className="relative z-10 flex-1 w-full pt-12 pb-24">
-        <div className="mx-auto max-w-[1500px] w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           {/* Hero Section */}
-          <div className="flex flex-col justify-center min-h-[50vh] pt-10 pb-16">
+          <div className="flex flex-col justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] pt-10 pb-15">
             <motion.div
               className="max-w-3xl flex flex-col items-start gap-6 w-full"
               initial={{ opacity: 0, y: 30 }}
@@ -119,7 +120,7 @@ export default function ContactPage() {
                 <span>Contact & Support</span>
               </div>
 
-              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7.5xl font-extrabold tracking-tight text-white leading-[1.1]">
+              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
                 Get In<br />
                 <span className="gradient-text">Touch</span>
               </h1>
@@ -131,7 +132,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Layout Grid */}
-          <section className="py-8 select-none">
+          <section className="pt-10 sm:pt-20 lg:pt-24 select-none">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
               
               {/* Left Side (40% Info) */}
@@ -173,7 +174,7 @@ export default function ContactPage() {
                       <div>
                         <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Phone Line</div>
                         <div className="text-sm sm:text-base font-bold text-white">
-                          +91 98765 43210
+                          +91 
                         </div>
                       </div>
                     </div>
@@ -382,40 +383,6 @@ export default function ContactPage() {
                 </motion.div>
               ))}
             </div>
-          </section>
-
-          {/* Map Section Map Design Placeholder */}
-          <section className="py-12 select-none">
-            <motion.div
-              className="w-full bg-[#0e0e10]/90 rounded-[2.5rem] min-h-[380px] border border-white/5 relative overflow-hidden flex flex-col items-center justify-center p-8 text-center shadow-2xl"
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              whileHover={{ y: -4 }}
-            >
-              {/* Dynamic abstract grid pattern in CSS background */}
-              <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
-              {/* Radial glow background */}
-              <div className="absolute size-96 rounded-full bg-purple-500/10 blur-[80px] pointer-events-none"></div>
-
-              <div className="relative z-10 space-y-6 max-w-md">
-                <div className="size-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 mx-auto shadow-lg shadow-purple-500/5">
-                  <Navigation className="size-6 animate-bounce" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Punjab Headquarters</h3>
-                  <p className="text-xs sm:text-sm text-slate-400 font-semibold leading-relaxed">
-                    Centrally based in Punjab, India. Developing high-fidelity ticketing and auditorium reservation platforms for colleges worldwide.
-                  </p>
-                </div>
-                
-                <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-900/30 px-4 py-1.5 text-xs font-semibold text-purple-300">
-                  <ShieldCheck className="size-3.5 text-purple-400" />
-                  <span>Administrative Campus Center</span>
-                </div>
-              </div>
-            </motion.div>
           </section>
 
         </div>

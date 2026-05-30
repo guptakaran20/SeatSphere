@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { apiResponse } from "@/lib/api-utils";
+import { apiResponse, applyRateLimit } from "@/lib/api-utils";
 import {
   cleanupExpiredUnverifiedUsers,
   cleanupExpiredUnverifiedUsersByIdentifiers,
@@ -19,6 +19,11 @@ const SignupSchema = z.object({
 export async function POST(req: Request) {
   const reqId = crypto.randomUUID();
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown-ip";
+    if (!applyRateLimit(`signup-${ip}`, 5, 10 * 60 * 1000)) {
+      return apiResponse(false, "Rate limit exceeded. Try again later.", null, 429, reqId);
+    }
+
     const body = await req.json();
     const parsed = SignupSchema.safeParse(body);
     if (!parsed.success) return apiResponse(false, "Validation Error", parsed.error.message, 400, reqId);
@@ -35,7 +40,7 @@ export async function POST(req: Request) {
     });
     if (existingUser) return apiResponse(false, "Conflict", "User already exists", 409, reqId);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const user = await prisma.user.create({
       data: {
         name, 
@@ -49,7 +54,7 @@ export async function POST(req: Request) {
     });
 
     return apiResponse(true, "Verify email and phone to continue", { userId: user.id }, 201, reqId);
-  } catch (error: any) {
-    return apiResponse(false, "Internal Server Error", error.message, 500, reqId);
+  } catch (error) {
+    return apiResponse(false, "Internal Server Error", error instanceof Error ? error.message : "Unknown Error", 500, reqId);
   }
 }

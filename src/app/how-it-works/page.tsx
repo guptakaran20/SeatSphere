@@ -108,23 +108,24 @@ export default function HowItWorksPage() {
   return (
     <div className="relative min-h-screen bg-black overflow-hidden flex flex-col">
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0 h-[85vh] w-full overflow-hidden select-none pointer-events-none">
+      <div className="absolute inset-0 z-0 h-[100vh] w-full overflow-hidden select-none pointer-events-none">
         <Image
           src="/bg-auditorium.png"
           alt="Auditorium Background"
           fill
           priority
-          className="object-cover object-center opacity-30 sm:opacity-75"
+          className="object-cover object-center opacity-30 sm:opacity-85"
         />
+        {/* Soft mobile-optimized gradient overlay that transitions to a simple overlay on desktop */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/85 to-black sm:hidden"></div>
-        <div className="absolute inset-0 bg-black/55 hidden sm:block"></div>
+        <div className="absolute inset-0 bg-black/50 hidden sm:block"></div>
       </div>
 
       <main className="relative z-10 flex-1 w-full pt-12 pb-24">
-        <div className="mx-auto max-w-[1500px] w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           {/* Hero Section */}
-          <div className="flex flex-col justify-center min-h-[50vh] pt-10 pb-16">
+          <div className="flex flex-col justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] pt-10 pb-15">
             <motion.div
               className="max-w-3xl flex flex-col items-start gap-6 w-full"
               initial={{ opacity: 0, y: 30 }}
@@ -136,7 +137,7 @@ export default function HowItWorksPage() {
                 <span>Simplicity Redefined</span>
               </div>
 
-              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7.5xl font-extrabold tracking-tight text-white leading-[1.1]">
+              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
                 How SeatSphere<br />
                 <span className="gradient-text">Works</span>
               </h1>
@@ -156,21 +157,21 @@ export default function HowItWorksPage() {
           </div>
 
           {/* Process Timeline Section */}
-          <section className="py-16">
+          <section className="py-10 sm:py-20 lg:py-24">
             <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">The Event Journey</h2>
               <p className="text-slate-400 text-sm sm:text-base">Six quick steps to guide you from event exploration to your auditorium seat.</p>
             </div>
-
+            <div className="absolute top-[1px] left-10 right-10 h-[2px] bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 opacity-30 z-0"></div>
             {/* Desktop Timeline Layout (lg and above) */}
             <div className="hidden lg:relative lg:flex lg:justify-between lg:items-stretch lg:gap-6 lg:mt-12 select-none">
               {/* Neon Connector Line */}
-              <div className="absolute top-[40px] left-10 right-10 h-[2px] bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 opacity-30 z-0"></div>
+              <div className="absolute left-10 right-10 h-[2px] bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 opacity-30 z-0"></div>
 
               {timelineSteps.map((step, idx) => (
                 <motion.div
                   key={idx}
-                  className="flex-1 flex flex-col justify-between bg-[#0e0e10]/80 p-6 rounded-[2rem] hover:bg-white/[0.02] transition-colors duration-300 min-h-[280px] relative z-10 select-none border border-white/5"
+                  className="flex-1 flex flex-col justify-between p-10  hover:bg-white/[0.02] transition-colors duration-300 min-h-[280px] relative z-10 select-none"
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
@@ -178,8 +179,8 @@ export default function HowItWorksPage() {
                   whileHover={{ y: -6 }}
                 >
                   <div>
-                    <div className="size-14 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center shadow-lg mb-6 group-hover:scale-105 transition-transform">
-                      <step.icon className={`size-6 ${step.color}`} />
+                    <div className="size-16 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center shadow-lg mb-6 group-hover:scale-105 transition-transform">
+                      <step.icon className={`size-10 ${step.color}`} />
                     </div>
                     <h3 className="text-lg font-bold text-white tracking-tight mb-2">{step.title}</h3>
                     <p className="text-xs text-slate-400 leading-relaxed font-medium">{step.desc}</p>
@@ -188,6 +189,7 @@ export default function HowItWorksPage() {
                 </motion.div>
               ))}
             </div>
+            
 
             {/* Mobile/Tablet Timeline Layout (Stack) */}
             <div className="lg:hidden flex flex-col gap-6 relative select-none">
@@ -203,10 +205,10 @@ export default function HowItWorksPage() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
                 >
-                  <div className="size-14 shrink-0 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center shadow-lg relative z-10">
+                  <div className="size-14 shrink-0 rounded-2xl bg-[#18181b] border border-white/10 flex items-center justify-center shadow-lg relative z-10 pt-5">
                     <step.icon className={`size-6 ${step.color}`} />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-10">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-extrabold text-purple-400">0{idx + 1}</span>
                       <h3 className="text-lg font-bold text-white tracking-tight">{step.title}</h3>
@@ -216,6 +218,9 @@ export default function HowItWorksPage() {
                 </motion.div>
               ))}
             </div>
+          <div className="hidden lg:relative lg:flex lg:justify-between lg:items-stretch lg:gap-2 lg:mt-12 select-none">
+          <div className="absolute left-10 right-10 h-[2px] bg-gradient-to-r from-purple-500 via-blue-500 to-pink-500 opacity-30 z-0"></div>
+          </div>
           </section>
 
           {/* Interactive Seat Selection Section */}

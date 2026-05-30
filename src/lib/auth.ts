@@ -55,6 +55,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database", // optional (default when adapter exists)
   },
-  pages: { signIn: '/login' },
+  pages: { signIn: '/signin' },
   secret: process.env.NEXTAUTH_SECRET
 };

@@ -64,54 +64,29 @@ const stats = [
   { icon: CheckCircle2, val: "99.9%", label: "Booking Success", color: "text-purple-500" }
 ];
 
-const team = [
-  {
-    name: "Karan Gupta",
-    role: "Founder & Lead Architect",
-    desc: "Obsessed with creating high-performance, beautiful products for colleges.",
-    github: "#",
-    linkedin: "#",
-    twitter: "#"
-  },
-  {
-    name: "Aarav Sharma",
-    role: "Product Designer",
-    desc: "Crafts the sleek dark interactions and visual layouts of SeatSphere.",
-    github: "#",
-    linkedin: "#",
-    twitter: "#"
-  },
-  {
-    name: "Sneha Patel",
-    role: "Full-Stack Engineer",
-    desc: "Bridges complex databases and instant real-time websocket connections.",
-    github: "#",
-    linkedin: "#",
-    twitter: "#"
-  }
-];
 
 export default function AboutPage() {
   return (
     <div className="relative min-h-screen bg-black overflow-hidden flex flex-col">
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 z-0 h-[85vh] w-full overflow-hidden select-none pointer-events-none">
+      <div className="absolute inset-0 z-0 h-[100vh] w-full overflow-hidden select-none pointer-events-none">
         <Image
           src="/bg-auditorium.png"
           alt="Auditorium Background"
           fill
           priority
-          className="object-cover object-center opacity-30 sm:opacity-75"
+          className="object-cover object-center opacity-30 sm:opacity-85"
         />
+        {/* Soft mobile-optimized gradient overlay that transitions to a simple overlay on desktop */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/85 to-black sm:hidden"></div>
-        <div className="absolute inset-0 bg-black/55 hidden sm:block"></div>
+        <div className="absolute inset-0 bg-black/50 hidden sm:block"></div>
       </div>
 
       <main className="relative z-10 flex-1 w-full pt-12 pb-24">
-        <div className="mx-auto max-w-[1500px] w-full px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
           {/* Hero Section */}
-          <div className="flex flex-col justify-center min-h-[50vh] pt-10 pb-16">
+          <div className="flex flex-col justify-center min-h-[40vh] sm:min-h-[50vh] lg:min-h-[60vh] pt-10 pb-15">
             <motion.div
               className="max-w-3xl flex flex-col items-start gap-6 w-full"
               initial={{ opacity: 0, y: 30 }}
@@ -123,7 +98,7 @@ export default function AboutPage() {
                 <span>Our Story</span>
               </div>
 
-              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7.5xl font-extrabold tracking-tight text-white leading-[1.1]">
+              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
                 Reimagining Auditorium<br />
                 <span className="gradient-text">Management</span>
               </h1>
@@ -135,7 +110,7 @@ export default function AboutPage() {
           </div>
 
           {/* Mission Section */}
-          <section className="py-16">
+          <section className="pt-10 sm:pt-20 lg:pt-32">
             <motion.div
               className="bg-[#0e0e10] rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl border border-white/5 flex flex-col lg:flex-row gap-12 items-center select-none"
               initial={{ opacity: 0, y: 40 }}
@@ -165,7 +140,7 @@ export default function AboutPage() {
                 <div className="absolute size-80 rounded-full bg-purple-500/10 blur-[60px] pointer-events-none -right-10 -top-10"></div>
                 
                 <motion.div
-                  className="w-full max-w-lg aspect-[1.3/1] bg-[#070709] rounded-2xl border border-white/10 p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between"
+                  className="w-full max-w-lg aspect-auto sm:aspect-[1.3/1] bg-[#070709] rounded-2xl border border-white/10 p-5 shadow-2xl relative overflow-hidden flex flex-col justify-between gap-4 sm:gap-0"
                   whileHover={{ y: -6, scale: 1.015 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 >
@@ -306,55 +281,6 @@ export default function AboutPage() {
                   </div>
                   <div className="text-slate-600 font-extrabold text-[9px] uppercase tracking-wider">Campus Slot</div>
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Team Section */}
-          <section className="py-20">
-            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Meet the Team</h2>
-              <p className="text-slate-400 text-sm sm:text-base">The creators, visual designers, and full-stack builders behind the SeatSphere platform.</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch select-none">
-              {team.map((member, idx) => (
-                <motion.div
-                  key={idx}
-                  className="bg-[#0e0e10] rounded-[2rem] p-8 hover:bg-white/[0.01] transition-all duration-300 border border-white/5 flex flex-col justify-between min-h-[300px]"
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: idx * 0.1 }}
-                  whileHover={{ y: -6 }}
-                >
-                  <div className="space-y-6">
-                    {/* Visual avatar placeholder */}
-                    <div className="flex items-center gap-4">
-                      <div className="size-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-fuchsia-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-purple-500/20 select-none">
-                        {member.name.charAt(0)}
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-white tracking-tight leading-none mb-1.5">{member.name}</h4>
-                        <p className="text-xs font-semibold text-purple-400">{member.role}</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-400 leading-relaxed font-medium">{member.desc}</p>
-                  </div>
-
-                  {/* Social links */}
-                  {/* <div className="flex items-center gap-4 pt-6 border-t border-white/10 mt-6">
-                    <Link href={member.github} className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
-                      <Github className="size-4" />
-                    </Link>
-                    <Link href={member.linkedin} className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
-                      <Linkedin className="size-4" />
-                    </Link>
-                    <Link href={member.twitter} className="size-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-colors">
-                      <Twitter className="size-4" />
-                    </Link>
-                  </div> */}
-                </motion.div>
               ))}
             </div>
           </section>

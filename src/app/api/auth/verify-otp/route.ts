@@ -1,7 +1,7 @@
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { apiResponse } from "@/lib/api-utils";
+import { apiResponse, applyRateLimit } from "@/lib/api-utils";
 import { cleanupExpiredUnverifiedUsers } from "@/lib/user-cleanup";
 
 const VerifyOtpSchema = z.object({
@@ -14,6 +14,11 @@ export async function POST(req: Request) {
   const reqId = crypto.randomUUID();
 
   try {
+    const ip = req.headers.get("x-forwarded-for") || "unknown-ip";
+    if (!applyRateLimit(`verify-otp-${ip}`, 10, 15 * 60 * 1000)) {
+      return apiResponse(false, "Rate limit exceeded. Try again later.", null, 429, reqId);
+    }
+
     const body = await req.json();
     const parsed = VerifyOtpSchema.safeParse(body);
 
@@ -106,13 +111,13 @@ export async function POST(req: Request) {
       200,
       reqId
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("OTP VERIFY ERROR:", error);
 
     return apiResponse(
       false,
       "Internal Server Error",
-      process.env.NODE_ENV === "development" ? error.message : null,
+      process.env.NODE_ENV === "development" ? (error instanceof Error ? error.message : "Unknown error") : null,
       500,
       reqId
     );
