@@ -2,7 +2,6 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { apiResponse, applyRateLimit } from "@/lib/api-utils";
-import { Prisma } from "@prisma/client";
 import { cleanupExpiredUnverifiedUsers } from "@/lib/user-cleanup";
 
 const SendOtpSchema = z.object({
