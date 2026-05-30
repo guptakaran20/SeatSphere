@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     }
 
     // ✅ 7. Transaction: mark verified + update user
-    const updatedUser = await prisma.$transaction(async (tx) => {
+    const updatedUser = await prisma.$transaction(async (tx : any) => {
       await tx.otpVerification.update({
         where: { id: otpRecord.id },
         data: { verified: true },
