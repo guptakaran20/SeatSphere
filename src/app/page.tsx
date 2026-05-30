@@ -30,8 +30,8 @@ export default function Home() {
           className="object-cover object-center opacity-30 sm:opacity-85"
         />
         {/* Soft mobile-optimized gradient overlay that transitions to a simple overlay on desktop */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/85 to-black sm:hidden"></div>
-        <div className="absolute inset-0 bg-black/50 hidden sm:block"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#09090b]/40 via-[#09090b]/80 to-[#09090b] sm:hidden"></div>
+        <div className="absolute inset-0 bg-[#09090b]/60 hidden sm:block"></div>
       </div>
 
       <main className="relative z-10 flex-1 w-full pt-12 pb-24">
@@ -51,9 +51,9 @@ export default function Home() {
                 <span>Smart. Secure. Seamless.</span>
               </div>
 
-              <h1 className="text-4xl xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+              <h1 className="text-[38px] xs:text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
                 Book Your Seat.<br />
-                <span className="">Experience</span> More.
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Experience</span> More.
               </h1>
 
               <p className="max-w-xl text-base sm:text-lg text-slate-300 leading-relaxed">
@@ -89,13 +89,13 @@ export default function Home() {
               { icon: QrCode, title: "QR-based Entry", desc: "Quick & secure event check-ins", color: "text-sky-400" },
               { icon: CalendarDays, title: "Easy Event Management", desc: "Create, approve & manage events", color: "text-pink-400" },
             ].map((feature, i) => (
-              <div key={i} className="col-span-1 flex flex-col gap-10 bg-[#0a0a0c]/50 px-6 py-12 rounded-3xl hover:bg-white/[0.02] transition-colors">
-                <div className="size-12 rounded-2xl bg-[#141416] flex items-center justify-center shadow-lg">
-                  <feature.icon className={`size-15 ${feature.color}`} />
+              <div key={i} className="col-span-1 flex flex-col gap-6 lg:gap-10 bg-[#0a0a0c]/50 px-6 py-8 lg:py-12 rounded-3xl hover:bg-white/[0.02] transition-colors border border-white/5">
+                <div className="size-12 rounded-2xl bg-[#141416] flex items-center justify-center shadow-lg border border-white/5">
+                  <feature.icon className={`size-6 ${feature.color}`} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                  <p className="text-lg text-slate-400 leading-relaxed">{feature.desc}</p>
+                  <h3 className="text-lg lg:text-xl font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-base lg:text-lg text-slate-400 leading-relaxed">{feature.desc}</p>
                 </div>
               </div>
             ))}
@@ -103,7 +103,7 @@ export default function Home() {
 
           {/* Interactive Live Seat Banner */}
           <motion.div
-            className="w-full mt-12 mb-24 bg-[#0e0e10] relative rounded-[2.5rem] min-h-[480px] lg:min-h-[520px] overflow-hidden shadow-2xl flex items-center select-none"
+            className="w-full mt-12 mb-24 bg-[#0e0e10] relative rounded-[2rem] lg:rounded-[2.5rem] min-h-[400px] lg:min-h-[520px] overflow-hidden shadow-2xl flex items-center select-none border border-white/5"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -130,7 +130,7 @@ export default function Home() {
               {/* Left Info Column */}
               <div className="lg:col-span-5 flex flex-col items-start text-left space-y-8 py-4">
                 <div className="space-y-6">
-                  <h3 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
+                  <h3 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
                     Experience<br />
                     <span>Live Seat</span><br />
                     Selection
@@ -189,20 +189,20 @@ export default function Home() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-4 sm:gap-x-6">
               {[
                 { icon: Users, val: "10K+", label: "Happy Users", color: "text-purple-400" },
                 { icon: Calendar, val: "500+", label: "Events Hosted", color: "text-purple-500" },
                 { icon: Armchair, val: "20K+", label: "Seats Booked", color: "text-purple-400" },
                 { icon: CheckCircle2, val: "99.9%", label: "Booking Success", color: "text-purple-500" },
               ].map((stat, i) => (
-                <div key={i} className={`flex items-center gap-5 justify-center lg:justify-start ${i !== 0 ? "lg:border-l lg:border-white/10 lg:pl-10" : ""} ${(i === 1 || i === 3) ? "border-l border-white/10 pl-6 lg:pl-10" : ""}`}>
-                  <div className={`flex items-center justify-center size-12 rounded-2xl bg-white/5`}>
-                    <stat.icon className={`size-6 ${stat.color}`} />
+                <div key={i} className={`flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-3 sm:gap-5 justify-center lg:justify-start text-center sm:text-left ${i !== 0 ? "lg:border-l lg:border-white/10 lg:pl-10" : ""} ${(i === 1 || i === 3) ? "border-l border-white/10 pl-4 sm:pl-6 lg:pl-10" : ""}`}>
+                  <div className={`flex items-center justify-center size-10 sm:size-12 rounded-2xl bg-white/5 shrink-0`}>
+                    <stat.icon className={`size-5 sm:size-6 ${stat.color}`} />
                   </div>
                   <div>
-                    <div className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight">{stat.val}</div>
-                    <div className="text-xs lg:text-sm font-medium text-slate-400 mt-1">{stat.label}</div>
+                    <div className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white tracking-tight">{stat.val}</div>
+                    <div className="text-[10px] sm:text-xs lg:text-sm font-medium text-slate-400 mt-1 uppercase tracking-wider">{stat.label}</div>
                   </div>
                 </div>
               ))}
